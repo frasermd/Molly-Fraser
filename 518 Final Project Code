@@ -1,0 +1,327 @@
+#Install Libraries
+
+install.packages("rgdal")
+install.packages("tidyverse")
+install.packages("grid")
+install.packages("gridExtra")
+install.packages("gtable")
+install.packages("maps")
+install.packages("bcmaps")
+install.packages("tmap")
+install.packages("fBasics")
+install.packages('bcmapsdata', repos='https://bcgov.github.io/drat/')
+install.packages("gstat")
+install.packages("sp")
+install.packages("spatstat")
+install.packages("maptools")
+install.packages("raster")
+install.packages("tmap")
+install.packages("plyr")
+install.packages("lubridate")
+install.packages("dplyr")
+install.packages("fBasics")
+install.packages("lattice")
+install.packages("dunn.test")
+install.packages("FSA")
+install.packages("raster)
+
+#LoadLibraries
+library("rgdal")
+library("tidyverse")
+library("grid")
+library("gtable")
+library("gridExtra")
+library("maps")
+library("bcmaps")
+library("tmap")
+library("gstat")
+library("sp")
+library("spatstat")
+library("maptools")
+library("raster")
+library("plyr")
+library("lubridate")
+library("dplyr")
+library("fBasics")
+library("lattice")
+library("dunn.test")
+library("FSA")
+library("raster")
+
+#####
+#Set working directory
+dir <- "/Users/Molls/iCloud Drive (Archive)/Documents/GEOG518/FinalProject/working"
+setwd(dir)
+getwd()
+
+#####
+#Read in CSV
+BoatInteractions <- read.csv("CopyCleanedData2019.csv")
+
+#Inspect data
+nrow(subset(BoatInteractions))#How many observations 
+
+#Determine Number of Infractions and No Infractions
+ComplianceRate <- table(BoatInteractions$INF_NoINF)
+ComplianceRate
+
+#Rate of Compliance by Species Bar Plot
+ComplianceTable <- table(BoatInteractions$'Species', BoatInteractions$INF_NoINF)
+ComplianceTable
+
+#Rate of Compliance by Vessel Type
+ComplianceRate <- table(BoatInteractions$INF_NoINF, BoatInteractions$Type.of.Vessel)
+ComplianceRate
+
+ComplianceRateBySpeciesBarPlot <- barplot(ComplianceTable, beside= TRUE, main= "Small Vessel Compliance Rates around Cetaceans",
+        legend= rownames(ComplianceTable), ylab= "Count", col= c("blue", "red"))
+
+#Subsetting Data based on Species Type
+BoatInteractionsTKW<-BoatInteractions[!(BoatInteractions$Species!="TKW"),]
+BoatInteractionsHB <- BoatInteractions[!(BoatInteractions$Species!="HB"),]
+
+#Mean
+meanDistance <- mean(BoatInteractions$Distance.b.w.Vessel..Whale)
+meanDistanceTKW <- mean(BoatInteractionsTKW$Distance.b.w.Vessel..Whale)
+meanDistanceHB <- mean(BoatInteractionsHB$Distance.b.w.Vessel..Whale)
+
+#Mean Distance by Vessel type for TKW
+meanCADWW_TKW= mean(subset(BoatInteractionsTKW, Type.of.Vessel== "CADWW")$Distance.b.w.Vessel..Whale)
+meanCFV_TKW= mean(subset(BoatInteractionsTKW, Type.of.Vessel== "CFV")$Distance.b.w.Vessel..Whale)
+meanFER_TKW= mean(subset(BoatInteractionsTKW, Type.of.Vessel== "FER")$Distance.b.w.Vessel..Whale)
+meanGPV_TKW= mean(subset(BoatInteractionsTKW, Type.of.Vessel== "GPV")$Distance.b.w.Vessel..Whale)
+meanRFV_TKW= mean(subset(BoatInteractionsTKW, Type.of.Vessel== "RFV")$Distance.b.w.Vessel..Whale)
+meanRK_TKW= mean(subset(BoatInteractionsTKW, Type.of.Vessel== "RK")$Distance.b.w.Vessel..Whale)
+meanRPV_TKW= mean(subset(BoatInteractionsTKW, Type.of.Vessel== "RPV")$Distance.b.w.Vessel..Whale)
+meanRSV_TKW= mean(subset(BoatInteractionsTKW, Type.of.Vessel== "RSV")$Distance.b.w.Vessel..Whale)
+meanUSWW_TKW= mean(subset(BoatInteractionsTKW, Type.of.Vessel== "USWW")$Distance.b.w.Vessel..Whale)
+
+vesseltypesTKW= c("CADWW", "CFV", "FER", "GPV", "RFV", "RK", "RPV", "RSV", "USWW")
+png("MeanVesselDistanceTKW_VesselType")
+barplot(c(meanCADWW_TKW, meanCFV_TKW, meanFER_TKW, meanGPV_TKW,meanRFV_TKW, meanRK_TKW, meanRPV_TKW, meanRSV_TKW, meanUSWW_TKW), names.arg = vesseltypesTKW,
+        main = "Average Vessel Distance to Transient Killer Whales", ylab= "Vessel Distance in Meters", xlab = "Vessel Type")
+dev.off()
+#Mean Distance by Vessel type for HB
+meanCADWW_HB= mean(subset(BoatInteractionsHB, Type.of.Vessel== "CADWW")$Distance.b.w.Vessel..Whale)
+meanCFV_HB= mean(subset(BoatInteractionsHB, Type.of.Vessel== "CFV")$Distance.b.w.Vessel..Whale)
+meanRK_HB= mean(subset(BoatInteractionsHB, Type.of.Vessel== "RK")$Distance.b.w.Vessel..Whale)
+meanRPV_HB= mean(subset(BoatInteractionsHB, Type.of.Vessel== "RPV")$Distance.b.w.Vessel..Whale)
+meanRSV_HB= mean(subset(BoatInteractionsHB, Type.of.Vessel== "RSV")$Distance.b.w.Vessel..Whale)
+meanUSWW_HB= mean(subset(BoatInteractionsHB, Type.of.Vessel== "USWW")$Distance.b.w.Vessel..Whale)
+vesseltypesHB= c("CADWW", "CFV", "RK", "RPV", "RSV", "USWW")
+
+vesseltypesTKW= c("CADWW", "CFV", "RK", "RPV", "RSV", "USWW")
+png("MeanVesselDistanceHB_VesselType")
+barplot(c(meanCADWW_HB, meanCFV_HB, meanRK_HB, meanRPV_HB, meanRSV_HB, meanUSWW_HB), names.arg = vesseltypesHB,
+        main = "Average Vessel Distance to Humpback Whales", ylab= "Vessel Distance in Meters", xlab = "Vessel Type")
+dev.off()
+
+#Median
+medianDistance <- median(BoatInteractions$Distance.b.w.Vessel..Whale)
+
+medianDistanceTKW <- median(BoatInteractionsTKW$Distance.b.w.Vessel..Whale)
+medianDistanceHB <- median(BoatInteractionsHB$Distance.b.w.Vessel..Whale)
+
+#Mode
+modeDistance <- as.numeric(names(sort(table(BoatInteractions$Distance.b.w.Vessel..Whale), decreasing = TRUE))[1])
+
+modeDistanceTKW <- as.numeric(names(sort(table(BoatInteractionsTKW$Distance.b.w.Vessel..Whale), decreasing = TRUE))[1])
+modeDistanceHB <- as.numeric(names(sort(table(BoatInteractionsHB$Distance.b.w.Vessel..Whale), decreasing = TRUE))[1])
+
+#Create table of descriptive statistics
+samples = c ("Total", "TKW", "HB")
+means = c (meanDistance, meanDistanceTKW, meanDistanceHB)
+median = c (medianDistance, medianDistanceTKW, medianDistanceHB)
+mode = c (modeDistance, modeDistanceTKW, modeDistanceHB)
+
+data.for.table = data.frame(samples, means, median, mode)
+#making a table
+table1 <- tableGrob(data.for.table, rows = c("","",""))
+t1Caption <- textGrob("Descriptive Statistics for Vessel Distances", gp= gpar(fontsize= 08))
+padding <- unit(5, "mm") 
+
+table1 <- gtable_add_rows(table1,
+                          heights = grobHeight(t1Caption) + padding, 
+                          pos= 0)
+table1 <- gtable_add_grob(table1, 
+                          t1Caption, t = 1, l = 3, r = ncol(data.for.table) +1)
+
+grid.arrange(table1, newpage = TRUE)
+
+#printing the table
+png("VesselDistanceTable.png")
+grid.arrange(table1, newpage = TRUE)
+dev.off()
+
+#Bar Graph for Infractions on Weekend vs Weekdays
+ComplianceTableWD <- table(BoatInteractions$'Week.Day.vs.Weekend', BoatInteractions$INF_NoINF)
+ComplianceTableWD
+ComplianceTableWD <- table(BoatInteractions$'Week.Day.vs.Weekend', BoatInteractions$INF_NoINF)
+ComplianceTableWD
+WKvsWD <- barplot(ComplianceTableWD, beside= TRUE, main= "Small Vessel Compliance on Week Days and Weekends",
+                                          legend= rownames(ComplianceTable), ylab= "Count", col= c("blue", "red"))
+                                          
+#Kernel Density for Infractions
+#Read in CSV
+BoatInteractions <- read.csv("CopyCleanedData2019.csv")
+
+
+#ReadinShapeFile
+SalishSea <- readOGR(dsn = "/Users/Molls/iCloud Drive (Archive)/Documents/GEOG518/FinalProject", layer= "salishseaFINAL4")
+plot(SalishSea)
+
+
+#Cleaning data
+Coords <- BoatInteractions [,c("Location.EASTING", "Location.NORTHING")] 
+crs <- CRS("+init=epsg:26910") 
+
+#Projecting the Data
+BoatPoints<- SpatialPointsDataFrame(coords = Coords , data = BoatInteractions , proj4string =crs )
+BoatPoints <- spTransform(BoatPoints, CRS("+init=epsg:3005"))
+SalishSeaNad83 <- spTransform(SalishSea, CRS("+init=epsg:3005"))
+plot(SalishSeaNad83)
+
+#Map of Boat Points in the Salish Sea
+Boats <- tm_shape(SalishSeaNad83) + #make the main shape
+  tm_lines() +  #fill polygons
+  tm_shape(BoatPoints) +
+  tm_symbols(col = "red", size = 0.1) +
+  tm_layout(main.title = "Small Vessel Observations in 2019", main.title.size = 1.2) +
+  tm_compass(position = c("left", "bottom")) +
+  tm_scale_bar(position = c("left", "bottom")) 
+
+Boats
+
+
+#variable that is changed out to see different aspects of the data, right now it is set to pull out points with infractions only
+kma <- BoatPoints[which(BoatPoints$INF_NoINF == "INF"),]
+
+kma$x <- coordinates(kma)[,1]
+kma$y <- coordinates(kma)[,2]
+#finds zero distance among points
+zd <- zerodist(kma)
+zd
+
+#create an "extent" object which can be used to create the observation window for spatstat
+kma.ext <- as.matrix(extent(kma)) 
+
+#observation window
+window <- as.owin(list(xrange = kma.ext[1,], yrange = kma.ext[2,]))
+
+#create ppp oject from spatstat
+kma.ppp <- ppp(x = kma$x, y = kma$y, window = window)
+
+#use cross-validation to get the bandwidth that minimizes MSE
+bw.d <- bw.diggle(kma.ppp)
+summary(bw.d)
+
+#plot the "optimal" bandwidth
+plot(bw.d, main= "Cross-Validation for Infractions") #cross-validation #change table name
+
+#density using the cross-validation bandwidth
+kde.bwo <- as(density(kma.ppp, bw = bw.d, at = "pixels", eps = c(1000, 1000)), "SpatialGridDataFrame") #result of this is not in a spatial grid dataframe
+plot(kde.bwo, main = "Kernal Density for Infractions") 
+plot(SalishSeaNad83, add= TRUE, border= "green")
+
+#####
+##QUADRAT ANALYSIS
+##First, determine the number of qusdrats 
+quads <- 10
+
+qcount <- quadratcount(kma.ppp, nx = quads, ny = quads)
+#plottingQuadrat
+plot(kma.ppp, main= "Infraction Observations", pch = "+", cex = 0.5)
+plot(qcount, add = T, col = "red")
+#visualizing
+plot(SalishSeaNad83, add=T)
+qcount.df <- as.data.frame(qcount)
+png("QuadratOutputINF1")
+
+plot(kma.ppp, main= "Quadrat Analysis for Infractions", pch = "+", cex = 0.5)
+plot(qcount, add = T, col = "red")
+
+plot(SalishSeaNad83, add=T)
+qcount.df <- as.data.frame(qcount)
+dev.off()
+##Second, count the number of quadrats with a distinct number of points.
+qcount.df <- plyr::count(qcount.df,'Freq')
+
+##Change the column names so that x=number of points and f=frequency of quadrats with x point.
+colnames(qcount.df) <- c("x","f")
+
+sum.f.x2 <- sum(qcount.df$f*qcount.df$x^2)
+
+M <- quads^2
+
+N <- sum(qcount.df$x)
+
+sum.fx.2 <- sum(qcount.df$f*qcount.df$x)^2
+
+VAR <- (sum.f.x2-(sum.fx.2/M)) / (M-1)
+
+MEAN <- N/M
+
+VMR <- VAR/ MEAN
+
+##Finally, perform the test statistic to test for the existence of a random spatial pattern.
+chi.square = VMR*(M-1)
+p = 1 - pchisq(chi.square, (M - 1))
+
+##Nearest Neighbour Distance
+###NEAREST NEIGHBOUR
+nearestNeighbour <- nndist(kma.ppp)
+
+##Convert the nearestNeighbor object into a dataframe.
+nearestNeighbour=as.data.frame(as.numeric(nearestNeighbour))
+##Change the column name to "Distance"
+colnames(nearestNeighbour) = "Distance"
+
+##Calculate the nearest neighbor statistic to test for a random spatial distribution.
+#mean nearest neighbour
+nnd = sum(nearestNeighbour) / 227
+#36 is N in quadrat
+
+#mean nearest neighbour for random spatial distribution
+
+studyArea <- 18936079049.400002 #area of salish sea in meters
+
+pointDensity <- 227 / studyArea
+
+r.nnd = (1 / ((2) * (sqrt(pointDensity))))
+
+d.nnd = (1.07453 / (sqrt(pointDensity)))
+
+R = ((nnd) / (r.nnd))
+
+SE.NND <- ((0.26136) / (sqrt(N * pointDensity)))
+
+z = (nnd - r.nnd)/ SE.NND
+
+#Kruskal-Wallis Test
+#changing Infractions to numeric 
+BoatInteractions$INF_NoINF <- as.factor (BoatInteractions$INF_NoINF) 
+BoatInteractions$INF_NoINF<- as.numeric (BoatInteractions$INF_NoINF) 
+#Variable you want to identify, either type of vessel, specie type or weekday vs weekends
+
+BoatInteractions$Type.of.Vessel <- as.factor(BoatInteractions$Type.of.Vessel)
+BoatInteractions$Type.of.Vessel <- as.numeric(BoatInteractions$Type.of.Vessel)
+
+#Order levels of the factor
+BoatInteractions$Type.of.Vessel = factor(BoatInteractions$Type.of.Vessel, levels = unique(BoatInteractions$Type.of.Vessel))
+BoatInteractions$Type.of.Vessel
+
+#Summarizing data treating Infractions as factors
+xtabs(~ BoatInteractions$Type.of.Vessel +
+      BoatInteractions$INF_NoINF, data = BoatInteractions)
+XT = xtabs(~BoatInteractions$Type.of.Vessel +
+              BoatInteractions$INF_NoINF, data = BoatInteractions)
+prop.table(XT, margin = 1)
+
+
+#Kruskal-Wallis test
+kruskal.test(BoatInteractions$INF_NoINF~BoatInteractions$Type.of.Vessel,
+             data = BoatInteractions)
+
+#posthoc test to compare the factors if wanting to compare each factor to eachother
+dunnTest(BoatInteractions$INF_NoINF,BoatInteractions$Type.of.Vessel, method = "bonferroni" )
+
